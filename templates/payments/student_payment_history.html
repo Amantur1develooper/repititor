@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}История платежей - {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-history"></i> История платежей: {{ student.full_name }}</h1>
+    <a href="{% url 'payment_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Назад к списку
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Все платежи</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Группа</th>
+                                <th>Сумма</th>
+                                <th>Месяцев</th>
+                                <th>Примечания</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td>{{ payment.date|date:"d.m.Y" }}</td>
+                                <td>{{ payment.group.name }}</td>
+                                <td><strong>{{ payment.amount }} сом</strong></td>
+                                <td><span class="badge bg-primary">{{ payment.months_count }}</span></td>
+                                <td>{{ payment.notes|default:"—" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Нет данных о платежах</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Статистика</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Всего платежей:</strong> {{ payments.count }}</p>
+                <p><strong>Общая сумма:</strong> {{ total_amount }} сом</p>
+                <p><strong>Всего оплаченных месяцев:</strong> {{ total_months }}</p>
+                <p><strong>Статус:</strong> 
+                    <span class="badge {% if student.status == 'active' %}bg-success{% elif student.status == 'debt' %}bg-danger{% else %}bg-secondary{% endif %}">
+                        {{ student.get_status_display }}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

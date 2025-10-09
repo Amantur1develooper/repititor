@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Управление группами{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-users"></i> Управление группами</h1>
+    <a href="{% url 'group_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Создать группу
+    </a>
+</div>
+
+<!-- Фильтры -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <select name="curator" class="form-select">
+                    <option value="">Все кураторы</option>
+                    {% for user in curators %}
+                    <option value="{{ user.id }}" {% if request.GET.curator == user.id|stringformat:"s" %}selected{% endif %}>
+                        {{ user.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="active" class="form-select">
+                    <option value="">Все группы</option>
+                    <option value="true" {% if request.GET.active == 'true' %}selected{% endif %}>Активные</option>
+                    <option value="false" {% if request.GET.active == 'false' %}selected{% endif %}>Неактивные</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-outline-primary w-100">Применить фильтры</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Таблица групп -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Название группы</th>
+                        <th>Дата начала</th>
+                        <th>Куратор</th>
+                        <th>Кол-во учеников</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group in groups %}
+                    <tr>
+                        <td>
+                            <strong>{{ group.name }}</strong>
+                        </td>
+                        <td>{{ group.start_date|date:"d.m.Y" }}</td>
+                        <td>{{ group.curator.username }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ group.students_count }}</span>
+                        </td>
+                        <td>
+                            {% if group.is_active %}
+                                <span class="badge bg-success">Активна</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Неактивна</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'group_update' group.pk %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i> Редактировать
+                            </a>
+                            <a href="{% url 'group_detail' group.pk %}" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-eye"></i> Просмотр
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                            Группы не найдены
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
