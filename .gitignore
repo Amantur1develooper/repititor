@@ -139,5 +139,3 @@ GitHub.sublime-settings
 .history
 
 
-migrations/
-migrations/*.py
