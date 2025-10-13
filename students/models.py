@@ -9,9 +9,9 @@ class Student(models.Model):
     ]
 
     full_name = models.CharField(max_length=255, verbose_name='Ф.И.О.')
-    birth_date = models.DateField(verbose_name='Дата рождения', null=True, blank=True)
+    
     phone = models.CharField(max_length=20, verbose_name='Телефон')
-    email = models.EmailField(verbose_name='E-mail', blank=True)
+    phone_parent = models.CharField(verbose_name='номер родителей', blank=True)
     parent_guardian = models.CharField(max_length=255, verbose_name='Родитель/опекун', blank=True)
     notes = models.TextField(verbose_name='Примечания', blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active', verbose_name='Статус')

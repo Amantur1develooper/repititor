@@ -6,7 +6,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
-from groups.models import Group
+from groups.models import Enrollment, Group
 from users.decorators import role_required
 from django.utils.decorators import method_decorator
 from .models import Payment, PaymentDate
@@ -87,3 +87,47 @@ class GroupPaymentStatusView(LoginRequiredMixin, DetailView):
             group=self.object
         ).select_related('student').order_by('student__full_name', 'month_number')
         return context
+    
+def payment_create(request):
+    """
+    Добавление нового платежа - ОБНОВЛЕННАЯ ВЕРСИЯ
+    """
+    if request.method == 'POST':
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            # Получаем объект платежа перед сохранением
+            payment = form.save(commit=False)
+            
+            # Автоматически устанавливаем номер месяца на основе студента и группы
+            student = payment.student
+            group = payment.group
+            
+            # Находим зачисление студента
+            enrollment = Enrollment.objects.get(student=student, group=group)
+            next_personal_month = enrollment.get_next_personal_month()
+            
+            # Устанавливаем номер месяца
+            payment.payment_month_number = next_personal_month
+            
+            print(f"DEBUG: Создаем платеж для месяца {next_personal_month}")
+            
+            payment.save()
+            return redirect(reverse('payment_list'))
+    else:
+        student_id = request.GET.get('student')
+        group_id = request.GET.get('group')
+        
+        # Предзаполняем номер месяца
+        initial_data = {}
+        if student_id and group_id:
+            try:
+                enrollment = Enrollment.objects.get(student_id=student_id, group_id=group_id)
+                next_personal_month = enrollment.get_next_personal_month()
+                initial_data['payment_month_number'] = next_personal_month
+                print(f"DEBUG: Предустановленный месяц: {next_personal_month}")
+            except Enrollment.DoesNotExist:
+                pass
+        
+        form = PaymentForm(initial=initial_data)
+
+    return render(request, 'payments/payment_form.html', {'form': form})
