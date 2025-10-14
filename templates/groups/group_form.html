@@ -81,7 +81,38 @@
                             </div>
                         </div>
                     </div>
-                    
+                    <div class="col-md-12">
+   
+</div>
+
+<div class="col-md-6">
+    <label for="{{ form.lessons_per_month.id_for_label }}" class="form-label">
+        {{ form.lessons_per_month.label }}
+    </label>
+    {{ form.lessons_per_month }}
+    {% if form.lessons_per_month.errors %}
+    <div class="text-danger small">
+        {% for error in form.lessons_per_month.errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="col-md-6">
+    <label for="{{ form.monthly_price.id_for_label }}" class="form-label">
+        {{ form.monthly_price.label }}
+    </label>
+    {{ form.monthly_price }}
+    {% if form.monthly_price.errors %}
+    <div class="text-danger small">
+        {% for error in form.monthly_price.errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
                     <div class="mt-4">
                         <button type="submit" class="btn btn-success">
                             {% if form.instance.pk %}<i class="fas fa-save"></i> Сохранить изменения{% else %}<i class="fas fa-plus"></i> Создать группу{% endif %}

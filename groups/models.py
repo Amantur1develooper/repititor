@@ -1,15 +1,10 @@
-# groups/models.py
-from django.db import models
-from students.models import Student
-from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.validators import MinValueValidator
 from dateutil.relativedelta import relativedelta
 from django.db import models
 from students.models import Student
 from django.contrib.auth.models import User
-from django.utils import timezone
-from django.core.validators import MinValueValidator
+
 
 class Group(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название группы')
@@ -42,57 +37,7 @@ class Group(models.Model):
         return self.students.count()
     students_count.short_description = 'Количество учеников'
     
-    
-# class Group(models.Model):
-#     name = models.CharField(max_length=255, verbose_name='Название группы')
-#     students = models.ManyToManyField(Student, through='Enrollment', verbose_name='Ученики')
-#     start_date = models.DateField(verbose_name='Дата начала 1-го месяца обучения', default=timezone.now)
-#     curator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name='Куратор')
-#     is_active = models.BooleanField(default=True, verbose_name='Активная группа')
-#     lessons_count = models.PositiveIntegerField(default=0, verbose_name='Количество проведенных занятий')
-#     lessons_per_month = models.PositiveIntegerField(default=15, verbose_name='Занятий в месяце')
-#     monthly_price = models.DecimalField(
-#         max_digits=10, 
-#         decimal_places=2, 
-#         validators=[MinValueValidator(0)],
-#         verbose_name='Стоимость обучения в месяц',
-#         default=0  # Можно установить стандартную стоимость
-#     )
-    
-#     class Meta:
-#         verbose_name = 'Группа'
-#         verbose_name_plural = 'Группы'
-#         ordering = ['-start_date', 'name']
 
-#     def __str__(self):
-#         return self.name
-    
-#     def get_current_month(self):
-#         """Возвращает текущий месяц обучения (начинается с 1)"""
-#         if self.lessons_count == 0:
-#             return 1
-#         return (self.lessons_count - 1) // self.lessons_per_month + 1
-    
-#     def get_next_month(self):
-#         """Возвращает следующий месяц для проверки оплаты"""
-#         return self.get_current_month() + 1
-    
-#     def should_check_payment(self):
-#         """Проверяет, нужно ли проверять оплату за следующий месяц"""
-#         return self.lessons_count % self.lessons_per_month == 0 and self.lessons_count > 0
-    
-    
-#     def get_student_payment_status(self, student, month_number):
-#         """Проверяет, оплатил ли студент конкретный месяц"""
-#         from payments.models import PaymentDate
-#         return PaymentDate.objects.filter(
-#             student=student,
-#             group=self,
-#             month_number=month_number
-#         ).exists()
-#     def students_count(self):
-#         return self.students.count()
-#     students_count.short_description = 'Количество учеников'
 class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name='Ученик')
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name='Группа')
@@ -138,20 +83,3 @@ class Enrollment(models.Model):
         if current_lesson_in_month == 0 and self.lessons_attended > 0:
             return 100
         return (current_lesson_in_month / self.group.lessons_per_month) * 100
-# class Enrollment(models.Model):
-#     student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name='Ученик')
-#     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name='Группа')
-#     enrolled_from = models.DateField(verbose_name='Дата зачисления', default=timezone.now)
-#     lessons_attended = models.PositiveIntegerField(default=0, verbose_name='Посещенных занятий')
-#     class Meta:
-#         verbose_name = 'Зачисление'
-#         verbose_name_plural = 'Зачисления'
-#         unique_together = ['student', 'group']  # предотвращаем дублирование
-        
-#     def __str__(self):
-#         return f"{self.student} в {self.group}"
-    
-#     def increment_attendance(self):
-#         """Увеличивает счетчик посещенных занятий"""
-#         self.lessons_attended += 1
-#         self.save()
