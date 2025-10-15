@@ -71,7 +71,7 @@ class Enrollment(models.Model):
     
     def get_next_personal_month(self):
         """Возвращает следующий месяц для студента"""
-        return self.get_personal_month() + 1
+        return self.get_personal_month() 
     
     def should_check_personal_payment(self):
         """Проверяет, нужно ли студенту оплачивать следующий месяц"""
