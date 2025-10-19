@@ -1,6 +1,10 @@
 from django.urls import path
-from . import views
+from .views import FinanceReportView2, ExportFinanceReportExcelView
 
 urlpatterns = [
-    # path('', views.index, name='students_index'),
+    path('', FinanceReportView2.as_view(), name='finance_report'),
+    path('export/excel/', ExportFinanceReportExcelView.as_view(), name='export_finance_excel'),
+
+
+
 ]
