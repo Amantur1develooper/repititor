@@ -40,9 +40,12 @@ INSTALLED_APPS = [
     'students',
     'payments',
     'groups',
+    'django_select2',
     'finances',
     'users',
 ]
+
+SELECT2_CACHE_BACKEND = 'default'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

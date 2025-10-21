@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+</head>
+<body>
+    <select id="test-select" style="width: 100%">
+        <option value="1">Иванов Иван Иванович (+79123456789)</option>
+        <option value="2">Петров Петр Петрович (+79223456789)</option>
+        <option value="3">Сидорова Мария Сергеевна (+79323456789)</option>
+    </select>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#test-select').select2({
+                placeholder: "Поиск студента...",
+                allowClear: true
+            });
+        });
+    </script>
+</body>
+</html>
