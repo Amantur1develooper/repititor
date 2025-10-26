@@ -138,6 +138,7 @@ def payment_create(request):
             group = payment.group
             
             try:
+                
                 enrollment = Enrollment.objects.get(student=student, group=group)
                 next_personal_month = enrollment.get_next_personal_month()
                 payment.payment_month_number = next_personal_month
