@@ -211,6 +211,48 @@
         </div>
     </div>
 </div>
+<!-- История посещений -->
+<section class="mt-6">
+  <h2 class="text-xl font-semibold mb-3">История посещений (последние 100)</h2>
+
+  {% if attendance_logs %}
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left border-b">
+            <th class="py-2 pr-4">Дата/время</th>
+            <th class="py-2 pr-4">Студент</th>
+            <th class="py-2 pr-4">Номер занятия у студента</th>
+            <th class="py-2 pr-4">Источник</th>
+            <th class="py-2 pr-4">Отметил</th>
+            <th class="py-2 pr-4">Примечание</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in attendance_logs %}
+            <tr class="border-b hover:bg-stone-50">
+              <td class="py-2 pr-4">{{ log.marked_at|date:"d.m.Y H:i" }}</td>
+              <td class="py-2 pr-4">
+                {{ log.enrollment.student.full_name }}
+              </td>
+              <td class="py-2 pr-4">{{ log.lesson_no_at_time }}</td>
+              <td class="py-2 pr-4">
+                {% if log.source == 'bulk' %}Групповое{% else %}Индивидуально{% endif %}
+              </td>
+              <td class="py-2 pr-4">
+                {% if log.marked_by %}{{ log.marked_by.get_full_name|default:log.marked_by.username }}{% else %}—{% endif %}
+              </td>
+              <td class="py-2 pr-4">{{ log.note|default:"" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-stone-600">Пока нет записей.</p>
+  {% endif %}
+</section>
+
 <!-- ОТЛАДОЧНАЯ ИНФОРМАЦИЯ -->
 <div class="card mb-4 mt-4 border-danger">
     <div class="card-header bg-danger text-white">
