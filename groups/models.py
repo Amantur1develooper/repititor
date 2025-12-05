@@ -23,8 +23,8 @@ class Group(models.Model):
     )
     
     class Meta:
-        verbose_name = 'Группа'
-        verbose_name_plural = 'Группы'
+        verbose_name = 'Группа студента'
+        verbose_name_plural = 'Группы студентов'
         ordering = ['-start_date', 'name']
 
     def __str__(self):

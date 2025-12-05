@@ -34,7 +34,7 @@
                                 <td>{{ payment.date|date:"d.m.Y" }}</td>
                                 <td>{{ payment.group.name }}</td>
                                 <td><strong>{{ payment.amount }} сом</strong></td>
-                                <td><span class="badge bg-primary">{{ payment.months_count }}</span></td>
+                                <td><span class="badge bg-primary">{{ payment.payment_month_number }}</span></td>
                                 <td>{{ payment.notes|default:"—" }}</td>
                             </tr>
                             {% empty %}
@@ -56,13 +56,17 @@
             </div>
             <div class="card-body">
                 <p><strong>Всего платежей:</strong> {{ payments.count }}</p>
-                <p><strong>Общая сумма:</strong> {{ total_amount }} сом</p>
-                <p><strong>Всего оплаченных месяцев:</strong> {{ total_months }}</p>
+                {% comment %} <p><strong>Общая сумма:</strong> {{ total_amount }} сом</p> {% endcomment %}
+                {% comment %} <p><strong>Всего оплаченных месяцев:</strong> {{ total_months }}</p> {% endcomment %}
                 <p><strong>Статус:</strong> 
                     <span class="badge {% if student.status == 'active' %}bg-success{% elif student.status == 'debt' %}bg-danger{% else %}bg-secondary{% endif %}">
                         {{ student.get_status_display }}
                     </span>
                 </p>
+                <p><a href="{% url 'payment_create' %}?student={{ student.id }}" 
+   class="btn btn-sm btn-outline-success">
+    <i class="fas fa-plus"></i> Добавить платеж
+</a></p>
             </div>
         </div>
     </div>

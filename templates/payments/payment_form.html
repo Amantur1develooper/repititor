@@ -47,93 +47,53 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" id="payment-form">
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            {% for error in form.non_field_errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        
-                        <div class="row g-3">
-                            <!-- Поле студента с поиском -->
-                            <div class="col-md-6">
-                                <label for="id_student" class="form-label">
-                                    <i class="fas fa-user me-1"></i>Студент
-                                    <span class="text-danger">*</span>
-                                </label>
-                                {{ form.student }}  <!-- ИСПРАВЛЕНО: используем форму, а не ручной select -->
-                                {% if form.student.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.student.errors %}
-                                        <i class="fas fa-times me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Поле группы -->
-                            <div class="col-md-6">
-                                <label for="{{ form.group.id_for_label }}" class="form-label">
-                                    <i class="fas fa-users me-1"></i>{{ form.group.label }}
-                                    <span class="text-danger">*</span>
-                                </label>
-                                {{ form.group }}
-                            </div>
-
-                            <!-- Дата -->
-                            <div class="col-md-4">
-                                <label for="{{ form.date.id_for_label }}" class="form-label">
-                                    <i class="fas fa-calendar me-1"></i>{{ form.date.label }}
-                                </label>
-                                {{ form.date }}
-                            </div>
-
-                            <!-- Сумма -->
-                            <div class="col-md-4">
-                                <label for="{{ form.amount.id_for_label }}" class="form-label">
-                                    <i class="fas fa-money-bill me-1"></i>{{ form.amount.label }}
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text">сом</span>
-                                    {{ form.amount }}
-                                </div>
-                            </div>
-
-                            <!-- Номер месяца -->
-                            <div class="col-md-4">
-                                <label for="{{ form.payment_month_number.id_for_label }}" class="form-label">
-                                    <i class="fas fa-calendar-alt me-1"></i>{{ form.payment_month_number.label }}
-                                </label>
-                                {{ form.payment_month_number }}
-                            </div>
-
-                            <!-- Примечания -->
-                            <div class="col-12">
-                                <label for="{{ form.notes.id_for_label }}" class="form-label">
-                                    <i class="fas fa-sticky-note me-1"></i>{{ form.notes.label }}
-                                </label>
-                                {{ form.notes }}
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 pt-3 border-top">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                {% if form.instance.pk %}
-                                    <i class="fas fa-save me-2"></i>Сохранить изменения
-                                {% else %}
-                                    <i class="fas fa-plus me-2"></i>Добавить платеж
-                                {% endif %}
-                            </button>
-                            <a href="{% url 'payment_list' %}" class="btn btn-secondary btn-lg">
-                                <i class="fas fa-arrow-left me-2"></i>Отмена
-                            </a>
-                        </div>
-                    </form>
+                    <form method="post">
+    {% csrf_token %}
+    
+    <!-- Скрытое поле для redirect_url -->
+    {% if redirect_url %}
+    <input type="hidden" name="redirect_url" value="{{ redirect_url }}">
+    {% endif %}
+    
+    <!-- Поля формы -->
+    <div class="row g-3">
+        {% for field in form %}
+        <div class="col-md-{% if field.name == 'notes' %}12{% else %}6{% endif %}">
+            <label for="{{ field.id_for_label }}" class="form-label">
+                {{ field.label }}
+                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+            {{ field }}
+            {% if field.help_text %}
+            <div class="form-text">{{ field.help_text }}</div>
+            {% endif %}
+            {% if field.errors %}
+            <div class="text-danger small">
+                {% for error in field.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="mt-4">
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-save"></i> Сохранить платеж
+        </button>
+        <!-- Кнопка отмены с учетом redirect_url -->
+        {% if redirect_url %}
+            <a href="{{ redirect_url }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Отмена
+            </a>
+        {% else %}
+            <a href="{% url 'payment_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Отмена
+            </a>
+        {% endif %}
+    </div>
+</form>
                 </div>
             </div>
         </div>

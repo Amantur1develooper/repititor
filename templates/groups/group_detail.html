@@ -135,10 +135,12 @@
                                 <a href="{% url 'student_payment_history' student.id %}" class="btn btn-sm btn-outline-info">
                                     <i class="fas fa-history"></i> История
                                 </a>
-                                <a href="{% url 'payment_create' %}?student={{ student.id }}&group={{ group.id }}" 
-                                   class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-plus"></i> Платеж
-                                </a>
+                         
+                                <a href="{% url 'payment_create2' %}?student={{ student.id }}&group={{ group.id }}" 
+   class="btn btn-sm btn-outline-success" 
+   title="Добавить платеж для этого студента">
+    <i class="fas fa-plus"></i> Платеж
+</a>
                             </td>
                         </tr>
                         {% endwith %}
@@ -252,6 +254,8 @@
     <p class="text-stone-600">Пока нет записей.</p>
   {% endif %}
 </section>
+
+                                
 
 <!-- ОТЛАДОЧНАЯ ИНФОРМАЦИЯ -->
 <div class="card mb-4 mt-4 border-danger">
