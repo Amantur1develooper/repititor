@@ -29,10 +29,7 @@ class Group(models.Model):
 
     def __str__(self):
         return self.name
-    
-    
-    
-    
+
     def students_count(self):
         return self.students.count()
     students_count.short_description = 'Количество учеников'

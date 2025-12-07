@@ -68,6 +68,7 @@
                         <tr class="{% if item.should_check_payment and not status.is_fully_paid %}table-danger{% elif status.is_fully_paid %}table-success{% endif %}">
                             <td>
                                 <strong>{{ student.full_name }}</strong>
+                                <p>{{enrollment.enrolled_from}}</p>
                                 {% if student.status == 'debt' %}
                                 <span class="badge bg-danger ms-1">Долг</span>
                                 {% endif %}

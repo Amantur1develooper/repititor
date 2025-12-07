@@ -32,9 +32,6 @@ class StudentAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    
-# students/admin.py (дополнение)
-
 
 
 

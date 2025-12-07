@@ -6,6 +6,7 @@ class EnrollmentInline(admin.TabularInline):
     model = Enrollment
     extra = 1
     autocomplete_fields = ['student']
+    search_fields = ('student', )
     fields = ('student', 'enrolled_from', 'lessons_attended', 'start_lesson')
     readonly_fields = ()
     show_change_link = True
@@ -54,7 +55,7 @@ class EnrollmentAdmin(admin.ModelAdmin):
         'get_personal_progress_percent_display',
     )
     list_filter = ('group', 'enrolled_from')
-    search_fields = ('student__first_name', 'student__last_name', 'group__name')
+    search_fields = ('student__full_name', )
     ordering = ('-enrolled_from',)
     list_editable = ('lessons_attended', 'start_lesson')
 
