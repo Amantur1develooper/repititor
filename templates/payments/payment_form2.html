@@ -113,14 +113,13 @@
                                     <i class="fas fa-calendar-check"></i> {{ form.payment_month_number.label }}
                                 </label>
                                 {{ form.payment_month_number }}
-                                <small class="form-text text-muted">
-                                    Номер месяца обучения (1, 2, 3...)
-                                    {% if student and group %}
-                                        {% with enrollment=student.enrollment_set.get group=group %}
-                                            | Текущий месяц студента: <strong>{{ enrollment.get_personal_month }}</strong>
-                                        {% endwith %}
-                                    {% endif %}
-                                </small>
+                              <small class="form-text text-muted">
+    Номер месяца обучения (1, 2, 3...)
+    {% if enrollment %}
+        | Текущий месяц студента: <strong>{{ enrollment.get_personal_month }}</strong>
+    {% endif %}
+</small>
+
                                 {% if form.payment_month_number.errors %}
                                 <div class="text-danger small">
                                     {% for error in form.payment_month_number.errors %}

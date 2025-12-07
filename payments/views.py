@@ -137,23 +137,38 @@ from .forms import PaymentForm
 from groups.models import Enrollment, Group
 from students.models import Student
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils import timezone
+from django.contrib import messages
+
+from students.models import Student
+from groups.models import Group
+from .forms import PaymentForm
+
+
 def payment_create2(request):
     """
     Добавление нового платежа с автоматическим заполнением полей
     """
-    # Получаем параметры из GET-запроса
+    
     student_id = request.GET.get('student')
     group_id = request.GET.get('group')
     redirect_url = request.GET.get('redirect_url')
-    
+
     # Если нет redirect_url, но есть group_id, устанавливаем redirect_url на страницу группы
     if not redirect_url and group_id:
         redirect_url = reverse('group_detail', kwargs={'pk': group_id})
-    
+
     # Проверяем безопасность redirect_url
     if redirect_url:
-        if not url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
+        if not url_has_allowed_host_and_scheme(redirect_url, allowed_hosts={request.get_host()}):
             redirect_url = None
+
+    student = None
+    group = None
+    enrollment = None  # будем передавать в шаблон
 
     if request.method == 'POST':
         form = PaymentForm(request.POST)
@@ -161,64 +176,156 @@ def payment_create2(request):
             payment = form.save(commit=False)
             student = payment.student
             group = payment.group
-            
-            try:
-                # Проверяем, зачислен ли студент в группу
-                enrollment = Enrollment.objects.get(student=student, group=group)
-                
+
+            # Берём последнюю запись Enrollment для этого студента и группы
+            enrollment = (
+                Enrollment.objects
+                .filter(student=student, group=group)
+                .order_by('-id')
+                .first()
+            )
+
+            if not enrollment:
+                form.add_error(
+                    None,
+                    f'Студент {student.full_name} не зачислен в группу {group.name}'
+                )
+            else:
                 # Если не указан номер месяца, определяем его автоматически
                 if not payment.payment_month_number:
                     payment.payment_month_number = enrollment.get_next_personal_month()
-                
+
                 payment.save()
-                
-                # Успешное сообщение
+
                 messages.success(
-                    request, 
+                    request,
                     f'✅ Платеж {payment.amount} сом успешно добавлен для {student.full_name}!'
                 )
-                
-                # Перенаправляем на указанный URL или на страницу группы
+
                 if redirect_url:
                     return redirect(redirect_url)
                 return redirect(reverse('group_detail', kwargs={'pk': group.id}))
-                
-            except Enrollment.DoesNotExist:
-                form.add_error(None, f'Студент {student.full_name} не зачислен в группу {group.name}')
+    
     else:
         # GET-запрос: создаем форму с предустановленными значениями
         initial_data = {
             'date': timezone.now().date(),  # Текущая дата
         }
-        
-        student = None
-        group = None
-        
-        # Если передан student_id и group_id, предустанавливаем значения
+
         if student_id and group_id:
-            try:
-                student = get_object_or_404(Student, id=student_id)
-                group = get_object_or_404(Group, id=group_id)
-                
-                enrollment = Enrollment.objects.get(student=student, group=group)
-                
-                initial_data.update({
-                    'student': student,
-                    'group': group,
-                    'payment_month_number': enrollment.get_next_personal_month(),
-                })
-                
-            except Enrollment.DoesNotExist:
+            student = get_object_or_404(Student, id=student_id)
+            group = get_object_or_404(Group, id=group_id)
+
+            # Берём последнюю запись Enrollment для этого студента и группы
+            enrollment = (
+                Enrollment.objects
+                .filter(student=student, group=group)
+                .order_by('-id')
+                .first()
+            )
+
+            initial_data.update({
+                'student': student,
+                'group': group,
+            })
+
+            if enrollment:
+                initial_data['payment_month_number'] = enrollment.get_next_personal_month()
+            else:
                 messages.error(request, '❌ Студент не найден в указанной группе!')
-        
+
         form = PaymentForm(initial=initial_data)
 
     return render(request, 'payments/payment_form2.html', {
         'form': form,
         'student': student,
         'group': group,
+        'enrollment': enrollment,   # 👈 ПЕРЕДАЁМ В ШАБЛОН
         'redirect_url': redirect_url
     })
+
+# def payment_create2(request):
+#     """
+#     Добавление нового платежа с автоматическим заполнением полей
+#     """
+#     # Получаем параметры из GET-запроса
+#     student_id = request.GET.get('student')
+#     group_id = request.GET.get('group')
+#     redirect_url = request.GET.get('redirect_url')
+    
+#     # Если нет redirect_url, но есть group_id, устанавливаем redirect_url на страницу группы
+#     if not redirect_url and group_id:
+#         redirect_url = reverse('group_detail', kwargs={'pk': group_id})
+    
+#     # Проверяем безопасность redirect_url
+#     if redirect_url:
+#         if not url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
+#             redirect_url = None
+
+#     if request.method == 'POST':
+#         form = PaymentForm(request.POST)
+#         if form.is_valid():
+#             payment = form.save(commit=False)
+#             student = payment.student
+#             group = payment.group
+            
+#             try:
+#                 # Проверяем, зачислен ли студент в группу
+#                 enrollment = Enrollment.objects.get(student=student, group=group)
+                
+#                 # Если не указан номер месяца, определяем его автоматически
+#                 if not payment.payment_month_number:
+#                     payment.payment_month_number = enrollment.get_next_personal_month()
+                
+#                 payment.save()
+                
+#                 # Успешное сообщение
+#                 messages.success(
+#                     request, 
+#                     f'✅ Платеж {payment.amount} сом успешно добавлен для {student.full_name}!'
+#                 )
+                
+#                 # Перенаправляем на указанный URL или на страницу группы
+#                 if redirect_url:
+#                     return redirect(redirect_url)
+#                 return redirect(reverse('group_detail', kwargs={'pk': group.id}))
+                
+#             except Enrollment.DoesNotExist:
+#                 form.add_error(None, f'Студент {student.full_name} не зачислен в группу {group.name}')
+#     else:
+#         # GET-запрос: создаем форму с предустановленными значениями
+#         initial_data = {
+#             'date': timezone.now().date(),  # Текущая дата
+#         }
+        
+#         student = None
+#         group = None
+        
+#         # Если передан student_id и group_id, предустанавливаем значения
+#         if student_id and group_id:
+#             try:
+#                 student = get_object_or_404(Student, id=student_id)
+#                 group = get_object_or_404(Group, id=group_id)
+                
+#                 enrollment = Enrollment.objects.get(student=student, group=group)
+                
+#                 initial_data.update({
+#                     'student': student,
+#                     'group': group,
+#                     'payment_month_number': enrollment.get_next_personal_month(),
+#                 })
+                
+#             except Enrollment.DoesNotExist:
+#                 messages.error(request, '❌ Студент не найден в указанной группе!')
+        
+#         form = PaymentForm(initial=initial_data)
+
+#     return render(request, 'payments/payment_form2.html', {
+#         'form': form,
+#         'student': student,
+#         'group': group,
+#         'redirect_url': redirect_url
+#     })
 def payment_create(request):
     """
     Добавление нового платежа с улучшенным поиском студентов и возможностью перенаправления
